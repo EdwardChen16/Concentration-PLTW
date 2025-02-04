@@ -61,6 +61,11 @@ public class Tile
     return hidden;
   }
 
+  public String getMatched() 
+  {
+    return matched;
+  }
+
   /**
    * Show this tile (turn it face up)
    */

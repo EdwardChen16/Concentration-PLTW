@@ -29,8 +29,20 @@ public class Game
     System.out.println("Select the tile locations you want to match,");
     System.out.println("or enter any non-integer character to quit.");
     System.out.println("(You will need to know 2D arrays to play!)");
-    System.out.println("\nPress Enter to continue...");
+    System.out.println("\nType 'settings' to customize your game, or type anything else to continue.");
     in.nextLine();
+
+    if (in.equals("settings")) {
+      boolean allSettingsCustomized = false;
+      while (!allSettingsCustomized) {
+        System.out.println("You can currently only change the dimensions of the array. Type 'yes' to do so, or type 'no' to head back to the main menu.");
+        in.nextLine();
+        if (in.equals("yes")) {
+          System.out.println("Please type the number of rows, followed by the number of columns.");
+          in.nextLine();
+        }
+      }
+    }
 
     board = new Board();
     // play until all tiles are matched
@@ -79,6 +91,8 @@ public class Game
 
       // wait 2 seconds to start the next turn
       wait(2); 
+      board.hideValue(row1, col1);
+      board.hideValue(row2, col2);
     }
 
     displayBoard();
@@ -139,8 +153,7 @@ public class Game
     for (int x = 0; x < 50; x++) {
       System.out.println();
     }
-
-    System.out.println(board);
+      System.out.println(board);
   }
 
   /**

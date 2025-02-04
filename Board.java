@@ -1,21 +1,15 @@
-/** 
- * A game board of NxM board of tiles.
- * 
- *  @author PLTW
- * @version 2.0
- */
+import java.util.ArrayList;
 
-/** 
- * A Board class for concentration
- */
 public class Board
 {  
-  private static String[] tileValues = {"lion", "lion",
+  private static ArrayList<String> tileValues = new ArrayList<String>();
+  private static String[] firstTiles = {"lion", "lion",
                                         "penguin", "penguin",
                                         "dolphin", "dolphin",
                                         "fox", "fox",
                                         "monkey", "monkey",
-                                        "turtle", "turtle"}; 
+                                        "turtle", "turtle"};
+
   private Tile[][] gameboard = new Tile[3][4];
 
   /**  
@@ -25,8 +19,19 @@ public class Board
    */
   public Board()
   {
-   
-    /* your code here */ 
+    int tileCounter = 0;
+    for (int i = 0; i < firstTiles.length; i++) {
+      tileValues.add(firstTiles[i]);
+    } // transfers all values in firstTiles in tileValues
+   for (int i = 0; i < gameboard.length; i++) {
+     for (int j = 0; j < gameboard[i].length; j++) {
+     gameboard[i][j] = new Tile(tileValues.remove((int)(Math.random() * (firstTiles.length - tileCounter))));
+     tileCounter++;
+     }
+   }
+
+   System.out.println("Board created!");
+     
 
   }
 
@@ -39,12 +44,41 @@ public class Board
    * 
    * @return a string represetation of the board
    */
-  public String toString()
-  {
- 
-    /* your code here */
- 
-    return "";
+  public String toString() {
+    String tempBoard = "";
+    for (int i = 0; i < gameboard.length; i++) {
+      for (int j = 0; j < gameboard[i].length; j++) {
+        if(gameboard[i][j].isShowingValue() == true) {
+          tempBoard += "[" + gameboard[i][j].getValue() + "]";
+        }
+
+        else if(gameboard[i][j].matched() == false) {
+          tempBoard += "[" + gameboard[i][j].getHidden() + "] ";
+        }
+
+        else {
+          tempBoard += "[" + gameboard[i][j].getMatched() + "] ";
+        }
+      }
+      tempBoard += "\n";
+    }
+    return tempBoard;
+  }
+
+  public String hideTiles() {
+    String tempBoard = "";
+    for (int i = 0; i < gameboard.length; i++) {
+      for (int j = 0; j < gameboard[i].length; j++) {
+        if(gameboard[i][j].matched() == false) {
+          tempBoard += "[" + gameboard[i][j].getHidden() + "] ";
+        }
+        else {
+          tempBoard += "[" + gameboard[i][j].getMatched() + "] ";
+        }
+      }
+      tempBoard += "\n";
+    }
+    return tempBoard;
   }
 
   /** 
@@ -57,9 +91,13 @@ public class Board
    */
   public boolean allTilesMatch()
   {
-
-    /* your code  here */
-    
+    for (int i = 0; i < gameboard.length; i++) {
+      for (int j = 0; j < gameboard[i].length; j++) {
+        if (gameboard[i][j].matched() == false) {
+          return false;
+        }
+      }
+    }
     return true;
   }
 
@@ -74,11 +112,14 @@ public class Board
    * @param row the row value of Tile
    * @param column the column value of Tile
    */
-  public void showValue (int row, int column)
-  {
-   
-    /* your code here */
+  public void showValue (int row, int column){
+   gameboard[row][column].show();
+
   }  
+
+  public void hideValue (int row, int column) {
+    gameboard[row][column].hide();
+  }
 
   /** 
    * Checks if the Tiles in the two locations match.
@@ -99,9 +140,13 @@ public class Board
    */
   public String checkForMatch(int row1, int col1, int row2, int col2)
   {
-    String msg = "";
+    String msg = "The tiles do not match, womp womp.";
 
-     /* your code here */
+     if (gameboard[row1][col1].equals(gameboard[row2][col2])) {
+      msg = "The tiles match!";
+      gameboard[row1][col1].foundMatch();
+      gameboard[row2][col2].foundMatch();
+     }
     
      return msg;
   }
@@ -114,12 +159,18 @@ public class Board
    * @param col the column value of Tile
    * @return true if row and col fall on the board and the row,col tile is unmatched, false otherwise
    */
-  public boolean validateSelection(int row, int col)
-  {
+  public boolean validateSelection(int row, int col){
+    if (row > gameboard.length - 1 || col > gameboard[0].length - 1) {
+      return false;
+    }
 
-    /* your code here */
+    else if (gameboard[row][col].matched() == true) {
+      return false;
+    }
 
-    return true;
+    else {
+      return true;
+    }
   }
 
 }
