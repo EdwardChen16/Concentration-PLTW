@@ -3,23 +3,16 @@ import java.util.ArrayList;
 public class Board
 {  
   private static ArrayList<String> tileValues = new ArrayList<String>();
-  private static String[] firstTiles = {"lion", "lion",
-                                        "penguin", "penguin",
-                                        "dolphin", "dolphin",
-                                        "fox", "fox",
-                                        "monkey", "monkey",
-                                        "turtle", "turtle"};
-
-  private Tile[][] gameboard = new Tile[3][4];
-
+  private ArrayList<ArrayList<Tile>> gameboard = new ArrayList<>();
+  JFXPanel fxPanel = new JFXPanel();
   /**  
    * Constructor for the game. Creates the 2D gameboard
    * by populating it with card values
    * 
    */
-  public Board()
+  public Board(int rows, int columns)
   {
-    int tileCounter = 0;
+    /* int tileCounter = 0;
     for (int i = 0; i < firstTiles.length; i++) {
       tileValues.add(firstTiles[i]);
     } // transfers all values in firstTiles in tileValues
@@ -31,8 +24,26 @@ public class Board
    }
 
    System.out.println("Board created!");
-     
+   */
+    int tileCounter = 0;
 
+   for (int i = 0; i < columns; i++) {
+    gameboard.add(new ArrayList<>());
+   }
+   
+   for (int j = 1; j < (rows * columns) + 1; j++) {
+      for (int k = 0; k < 2; k++) {
+      tileValues.add("" + j);
+      }
+   }
+
+   for (int outer = 0; outer < columns; outer++) {
+    for (int inner = 0; inner < rows; inner++) {
+      gameboard.get(outer).add(new Tile(tileValues.remove((int)(Math.random() * ((rows * columns) - tileCounter)))));
+      tileCounter++;
+    }
+   }
+   System.out.println("Board Created!");
   }
 
  /** 
@@ -46,18 +57,19 @@ public class Board
    */
   public String toString() {
     String tempBoard = "";
-    for (int i = 0; i < gameboard.length; i++) {
-      for (int j = 0; j < gameboard[i].length; j++) {
-        if(gameboard[i][j].isShowingValue() == true) {
-          tempBoard += "[" + gameboard[i][j].getValue() + "]";
+    for (int i = 0; i < gameboard.get(0).size(); i++) {
+      for (int j = 0; j < gameboard.size(); j++) {
+
+        if (gameboard.get(j).get(i).isShowingValue() == true) {
+          tempBoard += "[" + gameboard.get(j).get(i).getValue() + "]";
         }
 
-        else if(gameboard[i][j].matched() == false) {
-          tempBoard += "[" + gameboard[i][j].getHidden() + "] ";
+        if (gameboard.get(j).get(i).matched() == false) {
+          tempBoard += "[" + gameboard.get(j).get(i).getHidden() + "] ";
         }
 
         else {
-          tempBoard += "[" + gameboard[i][j].getMatched() + "] ";
+          tempBoard += "[" + gameboard.get(j).get(i).getMatched() + "] ";
         }
       }
       tempBoard += "\n";
@@ -67,13 +79,13 @@ public class Board
 
   public String hideTiles() {
     String tempBoard = "";
-    for (int i = 0; i < gameboard.length; i++) {
-      for (int j = 0; j < gameboard[i].length; j++) {
-        if(gameboard[i][j].matched() == false) {
-          tempBoard += "[" + gameboard[i][j].getHidden() + "] ";
+    for (int i = 0; i < gameboard.size(); i++) {
+      for (int j = 0; j < gameboard.get(0).size(); j++) {
+        if(gameboard.get(j).get(i).matched() == false) {
+          tempBoard += "[" + gameboard.get(j).get(i).getHidden() + "] ";
         }
         else {
-          tempBoard += "[" + gameboard[i][j].getMatched() + "] ";
+          tempBoard += "[" + gameboard.get(j).get(i).getMatched() + "] ";
         }
       }
       tempBoard += "\n";
@@ -91,9 +103,9 @@ public class Board
    */
   public boolean allTilesMatch()
   {
-    for (int i = 0; i < gameboard.length; i++) {
-      for (int j = 0; j < gameboard[i].length; j++) {
-        if (gameboard[i][j].matched() == false) {
+    for (int i = 0; i < gameboard.size(); i++) {
+      for (int j = 0; j < gameboard.get(0).size(); j++) {
+        if (gameboard.get(j).get(i).matched() == false) {
           return false;
         }
       }
@@ -113,12 +125,12 @@ public class Board
    * @param column the column value of Tile
    */
   public void showValue (int row, int column){
-   gameboard[row][column].show();
+   gameboard.get(column).get(row).show();
 
   }  
 
   public void hideValue (int row, int column) {
-    gameboard[row][column].hide();
+    gameboard.get(column).get(row).hide();
   }
 
   /** 
@@ -142,10 +154,10 @@ public class Board
   {
     String msg = "The tiles do not match, womp womp.";
 
-     if (gameboard[row1][col1].equals(gameboard[row2][col2])) {
+     if (gameboard.get(col1).get(row1).equals(gameboard.get(col2).get(row2))) {
       msg = "The tiles match!";
-      gameboard[row1][col1].foundMatch();
-      gameboard[row2][col2].foundMatch();
+      gameboard.get(col1).get(row1).foundMatch();
+      gameboard.get(col2).get(row1).foundMatch();
      }
     
      return msg;
@@ -160,11 +172,11 @@ public class Board
    * @return true if row and col fall on the board and the row,col tile is unmatched, false otherwise
    */
   public boolean validateSelection(int row, int col){
-    if (row > gameboard.length - 1 || col > gameboard[0].length - 1) {
+    if (row > gameboard.get(0).size() - 1 || col > gameboard.size() - 1) {
       return false;
     }
 
-    else if (gameboard[row][col].matched() == true) {
+    else if (gameboard.get(col).get(row).matched() == true) {
       return false;
     }
 
@@ -173,4 +185,10 @@ public class Board
     }
   }
 
+  private static void playRightSound(String sound) {
+    URL file = cl.getResource(sound);
+    final Media media = new Media(file.toString());
+    final MediaPlayer mediaPlayer = new MediaPlayer(media);
+    mediaPlayer.play();
+  }
 }
