@@ -24,6 +24,8 @@ public class SoundPlayer extends Application {
         mediaPlayer.play();
     }
 
+    //
+
     public static void main(String[] args) {
         launch(args); // Ensures JavaFX thread runs
     }
