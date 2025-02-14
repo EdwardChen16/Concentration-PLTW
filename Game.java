@@ -21,30 +21,72 @@ public class Game
   private Board board;
   private int row1, col1;
   private int row2, col2;
+  private int numRows;
+  private int numCol;
 
   public void play()
   {
-    // instructions
+    numRows = 4;
+    numCol = 4;
     System.out.println("Welcome!");
     System.out.println("Select the tile locations you want to match,");
     System.out.println("or enter any non-integer character to quit.");
     System.out.println("(You will need to know 2D arrays to play!)");
     System.out.println("\nType 'settings' to customize your game, or type anything else to continue.");
-    in.nextLine();
-
-    if (in.equals("settings")) {
+    String userResp = in.nextLine().toLowerCase();
+    if (userResp.equals("settings")) {
       boolean allSettingsCustomized = false;
       while (!allSettingsCustomized) {
         System.out.println("You can currently only change the dimensions of the array. Type 'yes' to do so, or type 'no' to head back to the main menu.");
-        in.nextLine();
-        if (in.equals("yes")) {
-          System.out.println("Please type the number of rows, followed by the number of columns.");
-          in.nextLine();
+        userResp = in.nextLine().toLowerCase();
+        boolean respCheck1 = false;
+        if (userResp.equals("yes")) {
+          System.out.println("Please type the number of rows.");
+        while (!respCheck1) {
+          userResp = in.nextLine();
+          if (userResp.matches("\\d+")) {
+            if (Integer.parseInt(userResp) <= 20) {
+            respCheck1 = true;
+            numRows = Integer.parseInt(userResp);
+            }
+            else if (Integer.parseInt(userResp) > 20) {
+              System.out.println("Sorry, the maximum number of rows you can play with is 12. Please enter another value.");
+            }
+          }
+          else {
+            getRandomResponse();
+          }
+        }
+        boolean respCheck2 = false;
+        System.out.println("Now enter the number of columns.");
+        while (!respCheck2) {
+        userResp = in.nextLine();
+          if (userResp.matches("\\d+")) {
+            if (Integer.parseInt(userResp) <= 12) {
+            numCol = Integer.parseInt(userResp);
+            if (numCol * numRows % 2 > 0) {
+              System.out.println("The dimensions you specified has an odd number of tiles. You must enter the dimensions of a board with an even number of tiles. Press enter to return back to the main menu.");
+              userResp = in.nextLine();
+              play();
+            }
+            else {
+              respCheck2 = true;
+              allSettingsCustomized = true;
+            } 
+          }
+        }
+          else {
+          getRandomResponse();
+          }
         }
       }
+      else if (userResp.equals("no")){
+        play();
+      }
     }
-
-    board = new Board();
+  }
+  System.out.println("" + numRows + " " + numCol);
+    board = new Board(numCol, numRows);
     // play until all tiles are matched
     while (!board.allTilesMatch())
     {
@@ -175,5 +217,10 @@ public class Game
   {
     System.out.println("Quit game!");
     System.exit(0);
+  }
+  public void getRandomResponse() {
+    String[] resp = {"I'm sorry, could you try again?", "I didn't get that. Please type your response again.", "Sorry, could you repeat that?"};
+
+    System.out.println(resp[(int) (Math.random() * 3)]);
   }
 }
