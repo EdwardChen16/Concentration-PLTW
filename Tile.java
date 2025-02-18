@@ -99,8 +99,8 @@ public class Tile
   public void foundMatch()
   {
     isMatched = true;
-    value = matched;
-    hidden = matched;
+    value = "  *  ";
+    hidden = "  *  ";
   }
   
   /**
@@ -134,3 +134,4 @@ public class Tile
     return value;
   }
 }
+

@@ -1,19 +1,14 @@
-/** 
- * The game that uses a n x m board of tiles or cards.
- *  
- * Player chooses two random tiles from the board. The chosen tiles
- * are temporarily shown face up. If the tiles match, they are removed from board.
- * 
- * Play continues, matching two tiles at a time, until all tles have been matched.
- * 
- * @author PLTW
- * @version 2.0
-*/
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-/**
- * A game class to play concentration
- */
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 public class Game
 {
   private Scanner in = new Scanner(System.in);
@@ -21,18 +16,33 @@ public class Game
   private Board board;
   private int row1, col1;
   private int row2, col2;
-  private int numRows;
-  private int numCol;
+  private int numRows = 4;
+  private int numCol = 4;
+  private int numPlays = 0;
+  private int fastestTime = Integer.MAX_VALUE;
 
+  public static void playSound(String filePath) {
+    try {
+        File soundFile = new File(filePath);
+        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioStream);
+        clip.start();
+        Thread.sleep(clip.getMicrosecondLength() / 1000);
+    } 
+    catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
+        e.printStackTrace();
+    }
+}
   public void play()
   {
-    numRows = 4;
-    numCol = 4;
-    System.out.println("Welcome!");
-    System.out.println("Select the tile locations you want to match,");
-    System.out.println("or enter any non-integer character to quit.");
-    System.out.println("(You will need to know 2D arrays to play!)");
-    System.out.println("\nType 'settings' to customize your game, or type anything else to continue.");
+    System.out.println(" CCCC  OOO  N   N  CCCC  EEEEE  N   N  TTTTT  RRRR    A   TTTTT III   OOO    N   N");
+    System.out.println("C     O   O NN  N C      E      NN  N    T    R   R  A A    T    I   O    O  NN  N");
+    System.out.println("C     O   O N N N C      EEEE   N N N    T    RRRR  AAAAA   T    I   O    O  N N N");
+    System.out.println("C     O   O N  NN C      E      N  NN    T    R  R  A   A   T    I   O    O  N  NN");
+    System.out.println(" CCCC  OOO  N   N  CCCC  EEEEE  N   N    T    R   R A   A   T   III   OOO    N   N");
+    System.out.println();
+    System.out.println("Welcome to concentration! Type anything to play with default settings. If you would like to customize the dimensions of the board, type 'settings.'");
     String userResp = in.nextLine().toLowerCase();
     if (userResp.equals("settings")) {
       boolean allSettingsCustomized = false;
@@ -85,12 +95,11 @@ public class Game
       }
     }
   }
-  System.out.println("" + numRows + " " + numCol);
+
     board = new Board(numCol, numRows);
-    // play until all tiles are matched
+    long startTime = System.currentTimeMillis();
     while (!board.allTilesMatch())
     {
-      // get player's first selection, if not an integer, quit
       row1 = -1;
       col1 = -1;
       boolean validTile = false;
@@ -101,10 +110,8 @@ public class Game
         validTile = getTile(true); 
       }
 
-      // display first tile
       board.showValue(row1, col1);
 
-      // get player's second selection, if not an integer, quit
       row2 = -1;
       col2 = -1;
       validTile = false;
@@ -114,7 +121,6 @@ public class Game
         System.out.print("Second choice (row col): ");
         validTile = getTile(false);
          
-        // check if user chosen same tile twice
         if ((row1 == row2) && (col1 == col2))
         {
           System.out.println("You mush choose a different second tile");
@@ -123,31 +129,57 @@ public class Game
         }
       }
 
-      // display second tile
       board.showValue(row2, col2);
       displayBoard();
 
-      // determine if tiles match
       String matched = board.checkForMatch(row1, col1, row2, col2);
       System.out.println(matched);
 
-      // wait 2 seconds to start the next turn
       wait(2); 
       board.hideValue(row1, col1);
       board.hideValue(row2, col2);
     }
 
     displayBoard();
-    System.out.println("Game Over!");
+
+    long endTime = System.currentTimeMillis();
+    long elapsedTime = endTime - startTime;
+    int totalTime = (int) (elapsedTime / 1000);
+    ArrayList<Integer> highScores = new ArrayList<>();
+    highScores.add(totalTime);
+    numPlays++;
+
+    
+    for (int i = 0; i < highScores.size(); i++) {
+    if (fastestTime > highScores.get(i)) {
+        fastestTime = highScores.get(i);
+    }
+}
+    playSound("victory.wav");
+    System.out.println("You took " + totalTime + " seconds to beat a " + numRows + " by " + numCol + " board." + " You have played a total of " + numPlays + " times.");
+    if (totalTime == fastestTime) {
+        System.out.println("Congrats, that was your fastest time!");
+    }
+    System.out.println("Want to play again? Type 'yes' if you would like to, or type 'quit' to exit the game.");
+    boolean respCheck3 = false;
+    while (!respCheck3) {
+        userResp = in.nextLine().toLowerCase();
+        if (userResp.equals("yes")) {
+            respCheck3 = true;
+            play();
+        }
+        else if (userResp.equals("quit")) {
+            respCheck3 = true;
+            System.exit(69);
+        }
+
+        else {
+        getRandomResponse();
+        }
+    }
+    System.out.println("Thanks for playing!");
   }
 
-  /**
-   * Get tile choices from the user, validating that
-   * the choice falls within the range of rows and columns on the board.
-   * 
-   * @param firstChoice if true, saves the user's first row/col choice, otherwise sets the user's second choice
-   * @return true if user has made a valid choice, false otherwise
-   */
 
   private boolean getTile(boolean firstChoice)
   {
@@ -185,34 +217,24 @@ public class Game
     return true;
   }
 
-  /**
-   * Clear the console and show the game board
-   */
   public void displayBoard()
   {
 
-    // scroll current board off screen
     for (int x = 0; x < 50; x++) {
       System.out.println();
     }
       System.out.println(board);
   }
 
-  /**
-   * Wait n seconds before clearing the console
-   */
   private void wait(int n)
   {
-    // a try is like an if statement, "throwing" an error if the body of the try fails
     try
     {
       Thread.sleep(n * 1000);
     } catch (InterruptedException e) { /* do nothing */ }
   }
 
-  /** 
-   * User quits game
-   */
+
   private void quitGame() 
   {
     System.out.println("Quit game!");
@@ -224,3 +246,4 @@ public class Game
     System.out.println(resp[(int) (Math.random() * 3)]);
   }
 }
+
